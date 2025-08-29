@@ -1,4 +1,4 @@
-import Player from "./Player";
+import Player, { PlayerObserver } from "./Player";
 
 let idCounter = 1;
 
@@ -14,6 +14,7 @@ export default class Game{
     emptycell : number;
     maxPlayer : number = 0;
     intervalID: NodeJS.Timeout | null = null;
+    observers: PlayerObserver[] = [];
 
 
     private constructor(width: number, height: number) {
@@ -59,6 +60,12 @@ export default class Game{
         player.playerAlive = true;
         this.emptycell = this.emptycell - 1;
         this.players.push(player);
+
+        // Observer pattern: notify all existing players
+        for (const observer of this.observers) {
+            observer.notifyPlayerJoined(player);
+        }
+        this.observers.push(player);
    }
 
 
@@ -100,10 +107,9 @@ export default class Game{
 
     private handleCollisions() {
         const positionMap = new Map<string, Player[]>();
-       for (let player of this.players) {
+        for (let player of this.players) {
             if (!player.playerAlive || player.xCoords === null || player.yCoords === null) continue;
             const key = `${player.xCoords},${player.yCoords}`;
-
             if (!positionMap.has(key)) {
                 positionMap.set(key, []);
             }
@@ -112,11 +118,22 @@ export default class Game{
 
         for (let [pos, playersAtPos] of positionMap.entries()) {
             if (playersAtPos.length > 1) {
-                console.log(
-                    `Collision at (${pos})! Eliminating players: ${playersAtPos.map(p => p.playerID).join(", ")}`
-                );
-                for (let p of playersAtPos) {
-                    p.playerAlive = false;
+                // Check if collision is at destination
+                const [x, y] = pos.split(',').map(Number);
+                if (x === this.destination.x && y === this.destination.y) {
+                    console.log(
+                        `Collision at destination (${pos})! Declaring winners: ${playersAtPos.map(p => p.playerID).join(", ")}`
+                    );
+                    for (let p of playersAtPos) {
+                        p.playerAlive = true; // keep them alive for winner check
+                    }
+                } else {
+                    console.log(
+                        `Collision at (${pos})! Eliminating players: ${playersAtPos.map(p => p.playerID).join(", ")}`
+                    );
+                    for (let p of playersAtPos) {
+                        p.playerAlive = false;
+                    }
                 }
             }
         }

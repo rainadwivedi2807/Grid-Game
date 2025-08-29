@@ -16,16 +16,21 @@ console.log(`Created players: ${playerA.playerID}, ${playerB.playerID}, ${player
 
 game1.addPlayer(playerA);
 game1.addPlayer(playerB);
-// game2.addPlayer(playerC);
-// game2.addPlayer(playerD);
 
-// game2.addPlayer(playerE);
-// game2.addPlayer(playerF);
 
-// game1.renderGame();
-// game2.renderGame();
+// Simulate a new player joining after 3 seconds
+setTimeout(() => {
+    const newPlayer = Player.create();
+    console.log(`\n New player ${newPlayer.playerID} is joining game ${game1.gameID} after game started !!`);
+    game1.addPlayer(newPlayer);
+}, 5000);
 
+game2.addPlayer(playerC);
+game2.addPlayer(playerD);
+
+game2.addPlayer(playerE);
+game2.addPlayer(playerF);
 
 game1.start();
-// game2.start();
+game2.start();
 

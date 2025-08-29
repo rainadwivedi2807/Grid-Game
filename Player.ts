@@ -1,5 +1,8 @@
+export interface PlayerObserver {
+    notifyPlayerJoined(newPlayer: Player): void;
+}
 
-export default class Player {
+export default class Player implements PlayerObserver {
     playerID: string;
     xCoords: number | null = null;
     yCoords: number | null = null;
@@ -25,7 +28,7 @@ export default class Player {
        if(!this.playerAlive || this.xCoords === null || this.yCoords === null) {
             return;
         }
-        if(this.xCoords !== destinationX || this.yCoords !== destinationY){
+        if(this.xCoords !== destinationX && this.yCoords !== destinationY){
             // Move Diagonally
             this.xCoords += this.xCoords < destinationX ? 1 : -1;
             this.yCoords += this.yCoords < destinationY ? 1 : -1;
@@ -36,6 +39,10 @@ export default class Player {
             // Move Vertically
             this.yCoords += this.yCoords < destinationY ? 1 : -1;
         }
+    }
+
+    notifyPlayerJoined(newPlayer: Player): void {
+        console.log(`Player ${this.playerID} notified: Player ${newPlayer.playerID} joined the game.`);
     }
 
 }
